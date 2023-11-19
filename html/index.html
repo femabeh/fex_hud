@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEX_HUD</title>
+    <script src="https://kit.fontawesome.com/ddae274994.js" crossorigin="anonymous"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;500&display=swap" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+    <style>
+        body {
+            background-color: transparent;
+            margin: 0;
+            display: flex;
+            position: absolute;
+            height: 6px;
+            bottom: 24px;
+            left: 20px;
+            overflow: hidden;
+            font-family: inherit;
+        }
+
+        .progress-container {
+            width: 10%;
+            aspect-ratio: 1/1;
+            position: relative;
+            margin: 10px;
+            margin-left: 20px;
+            padding-left: 24px;
+            left: -6px;
+        }
+
+        .progress-container svg {
+            height: 60px;
+            left: -6px;
+            position: relative;
+            top: -30px;
+            margin-left: -24px;
+        }
+
+        .progress-circle {
+            stroke: white;
+            stroke-width: 6%;
+            fill: none;
+            transition: stroke-dashoffset 0.3s ease;
+            transform: rotate(140deg);
+            transform-origin: 50% 50%;
+        }
+
+        .icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 200%;
+            margin-left: 12px;
+        }
+
+        #textStats {
+            color: white;
+            position: absolute;
+            bottom: 180px;
+            left: 12px;
+            width: 280px;
+        }
+
+        .stat {
+            width: 100px;
+            margin-bottom: 10px;
+        }
+
+        .stat span {
+            position: absolute;
+            left: 44px;
+            margin-top: 4px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .stat i {
+            font-size: 200%;
+        }
+    </style>
+</head>
+<body>
+    <div id="textStats">
+        <div class="stat" id="id">
+            <i class="fas fa-user"></i><span>Lädt...</span>
+        </div>
+
+        <div class="stat" id="job">
+            <i class="fas fa-briefcase"></i><span>Lädt...</span>
+        </div>
+
+        <div class="stat" id="money">
+            <i class="fas fa-wallet"></i><span>Lädt...</span>
+        </div>
+    </div>
+
+    <div class="progress-container" id="health">
+        <svg viewBox="0 0 100 100">
+            <circle class="progress-circle" cx="50" cy="50" r="40"></circle>
+        </svg>
+        <i class="icon fas fa-heart"></i>
+    </div>
+
+    <div class="progress-container" id="armor">
+        <svg viewBox="0 0 100 100">
+            <circle class="progress-circle" cx="50" cy="50" r="40"></circle>
+        </svg>
+        <i class="icon fas fa-shield"></i>
+    </div>
+
+    <div class="progress-container" id="stamina">
+        <svg viewBox="0 0 100 100">
+            <circle class="progress-circle" cx="50" cy="50" r="40"></circle>
+        </svg>
+        <i class="icon fas fa-person-running"></i>
+    </div>
+
+    <div class="progress-container" id="hunger">
+        <svg viewBox="0 0 100 100">
+            <circle class="progress-circle" cx="50" cy="50" r="40"></circle>
+        </svg>
+        <i class="icon fas fa-bread-slice"></i>
+    </div>
+
+    <div class="progress-container" id="thirst">
+        <svg viewBox="0 0 100 100">
+            <circle class="progress-circle" cx="50" cy="50" r="40"></circle>
+        </svg>
+        <i class="icon fas fa-droplet"></i>
+    </div>
+
+    <script>
+        $(function(){
+            window.addEventListener('message', function(event) {
+                if (event.data.action == "setValue")
+                {
+                    $('#'+event.data.key+' span').html(event.data.value)
+                }
+                else if (event.data.action == "setProgress") {
+                    //health, armor, stamina, hunger, thirst
+                    setProgress(event.data.key, event.data.value)
+                }
+                else if (event.data.action == "toggle")
+                {
+                    if (event.data.show){
+                        $('.progress-container').show();
+                        $('#textStats').show()
+                    } else{
+                        $('.progress-container').hide();
+                        $('#textStats').hide()
+                    }
+                }
+            });
+
+        });
+
+        function setProgress(containerId, percent) {
+            const maxPercent = 72;
+            percent = Math.min(percent, maxPercent);
+
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const circle = container.querySelector('.progress-circle');
+            const radius = circle.r.baseVal.value;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - percent / 100 * circumference;
+
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = offset;
+        }
+    </script>
+</body>
+</html>
